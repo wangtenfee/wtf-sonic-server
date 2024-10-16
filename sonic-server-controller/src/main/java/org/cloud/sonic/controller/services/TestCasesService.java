@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import org.cloud.sonic.controller.models.base.CommentPage;
 import org.cloud.sonic.controller.models.domain.TestCases;
 import org.cloud.sonic.controller.models.dto.TestCasesDTO;
+import org.cloud.sonic.controller.models.params.Action;
 
 import java.util.List;
 
@@ -51,4 +52,11 @@ public interface TestCasesService extends IService<TestCases> {
      * @return 用例作者列表集合
      */
     List<String> findAllCaseAuthor(int projectId, int platform);
+
+    /**
+     * 保存录制的坐标
+     * @param recordActions
+     * @return
+     */
+    boolean saveRecordActions(List<Action> recordActions);
 }

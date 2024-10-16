@@ -17,17 +17,20 @@
  */
 package org.cloud.sonic.controller.services.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import lombok.extern.slf4j.Slf4j;
 import org.cloud.sonic.controller.mapper.*;
 import org.cloud.sonic.controller.models.base.CommentPage;
 import org.cloud.sonic.controller.models.domain.*;
 import org.cloud.sonic.controller.models.dto.PublicStepsAndStepsIdDTO;
 import org.cloud.sonic.controller.models.dto.StepsDTO;
 import org.cloud.sonic.controller.models.dto.TestCasesDTO;
+import org.cloud.sonic.controller.models.params.Action;
 import org.cloud.sonic.controller.services.*;
 import org.cloud.sonic.controller.services.impl.base.SonicServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +47,7 @@ import java.util.stream.Collectors;
  * @des 测试用例逻辑实现
  * @date 2021/8/20 17:51
  */
+@Slf4j
 @Service
 public class TestCasesServiceImpl extends SonicServiceImpl<TestCasesMapper, TestCases> implements TestCasesService {
     @Autowired
@@ -292,6 +296,29 @@ public class TestCasesServiceImpl extends SonicServiceImpl<TestCasesMapper, Test
     @Override
     public List<String> findAllCaseAuthor(int projectId, int platform) {
         return testCasesMapper.listAllTestCaseAuthor(projectId, platform);
+    }
+
+    /**
+     * 保存录制的坐标
+     *
+     * @param recordActions
+     * @return
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean saveRecordActions(List<Action> recordActions) {
+        log.info("saveRecordActions: {}" , JSON.toJSONString(recordActions));
+        TestCases testCases = new TestCases();
+        testCases.setDes("录制的坐标");
+        testCases.setName("录制坐标");
+        testCases.setDesigner("wtf");
+        testCases.setProjectId(1);
+        testCases.setPlatform(1);
+        testCases.setModuleId(0);
+        testCases.setVersion("wtf");
+        save(testCases);
+        //log.info("saveRecordActions: id {}" , );
+        return false;
     }
 }
 

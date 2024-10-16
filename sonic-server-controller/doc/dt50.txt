@@ -1,0 +1,46 @@
+
+dt50-任务
+{"type":"touch","detail":"down 276 1306\n"}	43
+16:36:08.966
+{"type":"touch","detail":"up\n"}
+
+dt50-首页-首页
+{"type":"touch","detail":"down 103 1298\n"}	43
+16:37:34.900
+{"type":"touch","detail":"move 103 1298\n"}	43
+16:37:34.943
+{"type":"touch","detail":"up\n"}
+
+DT50-营地
+{"type":"touch","detail":"down 465 1306\n"}	43
+16:39:08.818
+{"type":"touch","detail":"up\n"}
+
+DT50-我的
+{"type":"touch","detail":"down 674 1306\n"}	43
+16:39:57.532
+{"type":"touch","detail":"move 674 1306\n"}	43
+16:39:57.564
+{"type":"touch","detail":"up\n"}
+
+新建测试用例
+curl 'http://localhost:3000/server/api/controller/testCases' \
+  -X 'PUT' \
+  -H 'Accept: */*' \
+  -H 'Accept-Language: zh_CN' \
+  -H 'Connection: keep-alive' \
+  -H 'Content-Type: application/json' \
+  -H 'Origin: http://localhost:3002' \
+  -H 'Referer: http://localhost:3002/' \
+  -H 'Sec-Fetch-Dest: empty' \
+  -H 'Sec-Fetch-Mode: cors' \
+  -H 'Sec-Fetch-Site: same-site' \
+  -H 'SonicToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsid3RmIiwiMDQ0NzM5MjctMjg4Yy00Nzc5LWI0MDAtNGExMjIzZmI1ZmM0Il0sImV4cCI6MTczMDA5NzYyN30.DoHUyGo_uhu3wndUmywXC-xPBOaIk2ou-nL2f8FXgjY' \
+  -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36' \
+  -H 'sec-ch-ua: "Google Chrome";v="129", "Not=A?Brand";v="8", "Chromium";v="129"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "Windows"' \
+  --data-raw '{"id":null,"name":"wtf-test2","platform":1,"projectId":1,"moduleId":0,"version":"","designer":"","des":""}'
+
+
+

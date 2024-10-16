@@ -195,6 +195,7 @@ public class TestCasesController {
     @PostMapping("/saveRecordActions")
     public RespModel<String> saveRecordActions(@Validated @RequestBody List<Action> recordActions) {
         log.info("saveRecordActions: {}" , JSON.toJSONString(recordActions));
+        testCasesService.saveRecordActions(recordActions);
         return new RespModel<>(RespEnum.SAVE_OK);
         /*if (token != null) {
             return new RespModel<>(2000, "ok.login", token);
