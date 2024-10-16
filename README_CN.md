@@ -1,3 +1,15 @@
+# 根据 https://soniccloudorg.github.io/contribute/con-server.html
+# 准备工作：jdk17、Idea
+~~~
+Fork sonic-server 仓库。
+执行git clone指令，将您的仓库代码克隆到本地。
+根据注释修改/sonic-server-common下resources的yml，特别是mysql的配置。
+依次启动EurekaApplicaiton、ControllerApplication、GatewayApplication、FolderApplication。
+恭喜，搭建完毕！
+开发完毕后，push到自己的仓库，然后可以给Sonic原仓库提起pr哦！（建议贡献前先开启issue讨论，防止跟组织计划进度有冲突哦）
+每次本地开发环境更新版本，需前往【后台管理中心】 -> 【同步资源】
+~~~ 
+
 <p align="center">
   <img width="80px" src="https://raw.githubusercontent.com/SonicCloudOrg/sonic-server/main/logo.png">
 </p>

@@ -17,13 +17,16 @@
  */
 package org.cloud.sonic.controller.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.cloud.sonic.common.config.WebAspect;
+import org.cloud.sonic.common.config.WhiteUrl;
 import org.cloud.sonic.common.http.RespEnum;
 import org.cloud.sonic.common.http.RespModel;
 import org.cloud.sonic.common.tools.JWTTokenTool;
@@ -31,6 +34,8 @@ import org.cloud.sonic.controller.models.base.CommentPage;
 import org.cloud.sonic.controller.models.domain.TestCases;
 import org.cloud.sonic.controller.models.domain.TestSuites;
 import org.cloud.sonic.controller.models.dto.TestCasesDTO;
+import org.cloud.sonic.controller.models.http.UserInfo;
+import org.cloud.sonic.controller.models.params.Action;
 import org.cloud.sonic.controller.services.TestCasesService;
 import org.cloud.sonic.controller.services.TestSuitesService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +46,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Date;
 import java.util.List;
 
+@Slf4j
 @Tag(name = "测试用例相关")
 @RestController
 @RequestMapping("/testCases")
@@ -182,5 +188,18 @@ public class TestCasesController {
                 RespEnum.SEARCH_OK,
                 testCasesService.findAllCaseAuthor(projectId, platform)
         );
+    }
+
+    @WebAspect
+    @Operation(summary = "存储录制的坐标", description = "存储录制的坐标")
+    @PostMapping("/saveRecordActions")
+    public RespModel<String> saveRecordActions(@Validated @RequestBody List<Action> recordActions) {
+        log.info("saveRecordActions: {}" , JSON.toJSONString(recordActions));
+        return new RespModel<>(RespEnum.SAVE_OK);
+        /*if (token != null) {
+            return new RespModel<>(2000, "ok.login", token);
+        } else {
+            return new RespModel<>(2001, "fail.login");
+        }*/
     }
 }
