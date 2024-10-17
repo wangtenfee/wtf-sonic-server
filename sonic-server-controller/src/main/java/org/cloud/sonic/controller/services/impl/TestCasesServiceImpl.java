@@ -54,6 +54,7 @@ public class TestCasesServiceImpl extends SonicServiceImpl<TestCasesMapper, Test
     private StepsService stepsService;
     @Autowired
     private StepsElementsMapper stepsElementsMapper;
+
     @Autowired
     private GlobalParamsService globalParamsService;
     @Autowired
@@ -312,12 +313,54 @@ public class TestCasesServiceImpl extends SonicServiceImpl<TestCasesMapper, Test
         testCases.setDes("录制的坐标");
         testCases.setName("录制坐标");
         testCases.setDesigner("wtf");
-        testCases.setProjectId(1);
+        int projectId = 1;
+        testCases.setProjectId(projectId);
         testCases.setPlatform(1);
         testCases.setModuleId(0);
         testCases.setVersion("wtf");
         save(testCases);
-        //log.info("saveRecordActions: id {}" , );
+        log.info("saveRecordActions: id {}" , testCases.getId());
+        int i = 1 ;
+        for (Action action : recordActions) {
+            if(action.getDetail().startsWith("down")){
+                /**
+                 * 配置步骤
+                 */
+                Steps steps = new Steps();
+                steps.setCaseId(testCases.getId());
+                steps.setSort(i);
+                steps.setStepType("tap");
+                steps.setPlatform(1);
+                steps.setProjectId(projectId);
+                steps.setParentId(0);
+                steps.setError(3);
+                steps.setContent("");
+                steps.setText("");
+                stepsService.save(steps);
+
+                /**
+                 * 新建元素
+                 */
+                 Elements elements = new Elements();
+                 elements.setEleName("坐标");
+                 elements.setEleType("point");
+                 //{"detail":"down 294 1301\n","type":"touch"} 转成 294,1301
+                String v = action.getDetail().replace("down ", "").replace("\n", "").replace(" ", ",");
+                elements.setEleValue(v);
+                elements.setProjectId(1);
+                elements.setModuleId(0);
+                elementsService.save(elements);
+                /**
+                 * 新建 元素和步骤 的关联记录
+                 */
+                StepsElements stepsElements = new StepsElements();
+                stepsElements.setStepsId(steps.getId());
+                stepsElements.setElementsId(elements.getId());
+                stepsElementsMapper.insert(stepsElements);
+
+                i++;
+            }
+        }
         return false;
     }
 }
