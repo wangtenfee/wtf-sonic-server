@@ -18,6 +18,7 @@ import org.cloud.sonic.controller.models.base.TypeConverter;
 import org.cloud.sonic.controller.models.dto.ElementsDTO;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * @author JayWenStar
@@ -34,6 +35,19 @@ import java.io.Serializable;
 @TableCharset(MySqlCharsetConstant.DEFAULT)
 @TableEngine(MySqlEngineConstant.InnoDB)
 public class Elements implements Serializable, TypeConverter<Elements, ElementsDTO> {
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Elements elements = (Elements) o;
+        return Objects.equals(id, elements.id) && Objects.equals(eleName, elements.eleName) && Objects.equals(eleType, elements.eleType) && Objects.equals(eleValue, elements.eleValue) && Objects.equals(projectId, elements.projectId) && Objects.equals(moduleId, elements.moduleId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, eleName, eleType, eleValue, projectId, moduleId);
+    }
 
     @TableId(value = "id", type = IdType.AUTO)
     @IsAutoIncrement

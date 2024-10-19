@@ -24,6 +24,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
+import org.cloud.sonic.common.exception.SonicException;
 import org.cloud.sonic.controller.mapper.*;
 import org.cloud.sonic.controller.models.base.CommentPage;
 import org.cloud.sonic.controller.models.domain.*;
@@ -98,7 +99,7 @@ public class TestCasesServiceImpl extends SonicServiceImpl<TestCasesMapper, Test
 
     @Transactional
     public TestCasesDTO findCaseDetail(TestCases testCases) {
-        if (testCases == null){
+        if (testCases == null) {
             return new TestCasesDTO().setId(0).setName("unknown");
         }
 
@@ -308,60 +309,51 @@ public class TestCasesServiceImpl extends SonicServiceImpl<TestCasesMapper, Test
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean saveRecordActions(List<Action> recordActions) {
-        log.info("saveRecordActions: {}" , JSON.toJSONString(recordActions));
-        TestCases testCases = new TestCases();
-        testCases.setDes("录制的坐标");
-        testCases.setName("录制坐标");
-        testCases.setDesigner("wtf");
+        log.info("saveRecordActions: {}", JSON.toJSONString(recordActions));
         int projectId = 1;
-        testCases.setProjectId(projectId);
-        testCases.setPlatform(1);
-        testCases.setModuleId(0);
-        testCases.setVersion("wtf");
+        TestCases testCases = TestCases.builder().des("录制的坐标").name("录制坐标").designer("wtf").projectId(projectId).platform(1).moduleId(0).version("wtf").build();
         save(testCases);
-        log.info("saveRecordActions: id {}" , testCases.getId());
-        int i = 1 ;
+        log.info("saveRecordActions: id {}", testCases.getId());
+        int i = 1;
+        List<Action> queue = new ArrayList<>();
         for (Action action : recordActions) {
-            if(action.getDetail().startsWith("down")){
-                /**
-                 * 配置步骤
-                 */
-                Steps steps = new Steps();
-                steps.setCaseId(testCases.getId());
-                steps.setSort(i);
-                steps.setStepType("tap");
-                steps.setPlatform(1);
-                steps.setProjectId(projectId);
-                steps.setParentId(0);
-                steps.setError(3);
-                steps.setContent("");
-                steps.setText("");
-                stepsService.save(steps);
-
-                /**
-                 * 新建元素
-                 */
-                 Elements elements = new Elements();
-                 elements.setEleName("坐标");
-                 elements.setEleType("point");
-                 //{"detail":"down 294 1301\n","type":"touch"} 转成 294,1301
-                String v = action.getDetail().replace("down ", "").replace("\n", "").replace(" ", ",");
-                elements.setEleValue(v);
-                elements.setProjectId(1);
-                elements.setModuleId(0);
-                elementsService.save(elements);
-                /**
-                 * 新建 元素和步骤 的关联记录
-                 */
-                StepsElements stepsElements = new StepsElements();
-                stepsElements.setStepsId(steps.getId());
-                stepsElements.setElementsId(elements.getId());
-                stepsElementsMapper.insert(stepsElements);
-
-                i++;
+            if(action.getDetail().startsWith("up")){
+                i = handleStack(queue,i,projectId,testCases);
+                queue.clear();
+            }else{
+                queue.add(action);
             }
         }
         return false;
+    }
+
+    private int handleStack(List<Action> queue,int index,int projectId,TestCases testCases){
+        if(queue.isEmpty()){
+            log.error("queue is empty");
+            throw new SonicException("queue is empty");
+        }
+        Elements first = actionToElement(queue.get(0),projectId);
+        Elements last = actionToElement(queue.get(queue.size()-1),projectId);
+        if(first.equals(last)){
+            Steps steps = Steps.builder().caseId(testCases.getId()).sort(index).stepType("tap").platform(1).projectId(projectId).parentId(0).error(3).content("").text("").build();
+            stepsService.save(steps);
+            elementsService.save(first);
+            stepsElementsMapper.insert(StepsElements.builder().stepsId(steps.getId()).elementsId(first.getId()).build());
+        }else{
+            Steps steps = Steps.builder().caseId(testCases.getId()).sort(index).stepType("swipe").platform(1).projectId(projectId).parentId(0).error(3).content("").text("").build();
+            stepsService.save(steps);
+            elementsService.save(first);
+            elementsService.save(last);
+            stepsElementsMapper.insert(StepsElements.builder().stepsId(steps.getId()).elementsId(first.getId()).build());
+            stepsElementsMapper.insert(StepsElements.builder().stepsId(steps.getId()).elementsId(last.getId()).build());
+        }
+        index++;
+        return index;
+    }
+
+    private Elements actionToElement(Action action,int projectId){
+        String v = action.getDetail().replace("down ", "").replace("move ", "").replace("\n", "").replace(" ", ",");
+        return Elements.builder().eleName("坐标").eleType("point").eleValue(v).projectId(projectId).moduleId(0).build();
     }
 }
 
