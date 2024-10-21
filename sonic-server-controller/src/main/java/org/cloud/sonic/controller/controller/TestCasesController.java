@@ -36,6 +36,7 @@ import org.cloud.sonic.controller.models.domain.TestSuites;
 import org.cloud.sonic.controller.models.dto.TestCasesDTO;
 import org.cloud.sonic.controller.models.http.UserInfo;
 import org.cloud.sonic.controller.models.params.Action;
+import org.cloud.sonic.controller.models.params.RecordActionParam;
 import org.cloud.sonic.controller.services.TestCasesService;
 import org.cloud.sonic.controller.services.TestSuitesService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -193,14 +194,9 @@ public class TestCasesController {
     @WebAspect
     @Operation(summary = "存储录制的坐标", description = "存储录制的坐标")
     @PostMapping("/saveRecordActions")
-    public RespModel<String> saveRecordActions(@Validated @RequestBody List<Action> recordActions) {
-        log.info("saveRecordActions: {}" , JSON.toJSONString(recordActions));
-        testCasesService.saveRecordActions(recordActions);
+    public RespModel<String> saveRecordActions(@Validated @RequestBody RecordActionParam actionParam) {
+        log.info("saveRecordActions: {}" , JSON.toJSONString(actionParam));
+        testCasesService.saveRecordActions(actionParam);
         return new RespModel<>(RespEnum.SAVE_OK);
-        /*if (token != null) {
-            return new RespModel<>(2000, "ok.login", token);
-        } else {
-            return new RespModel<>(2001, "fail.login");
-        }*/
     }
 }

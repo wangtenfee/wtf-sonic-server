@@ -32,6 +32,7 @@ import org.cloud.sonic.controller.models.dto.PublicStepsAndStepsIdDTO;
 import org.cloud.sonic.controller.models.dto.StepsDTO;
 import org.cloud.sonic.controller.models.dto.TestCasesDTO;
 import org.cloud.sonic.controller.models.params.Action;
+import org.cloud.sonic.controller.models.params.RecordActionParam;
 import org.cloud.sonic.controller.services.*;
 import org.cloud.sonic.controller.services.impl.base.SonicServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -303,44 +304,44 @@ public class TestCasesServiceImpl extends SonicServiceImpl<TestCasesMapper, Test
     /**
      * 保存录制的坐标
      *
-     * @param recordActions
+     * @param actionParam
      * @return
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean saveRecordActions(List<Action> recordActions) {
-        log.info("saveRecordActions: {}", JSON.toJSONString(recordActions));
-        int projectId = 1;
-        TestCases testCases = TestCases.builder().des("录制的坐标").name("录制坐标").designer("wtf").projectId(projectId).platform(1).moduleId(0).version("wtf").build();
-        save(testCases);
-        log.info("saveRecordActions: id {}", testCases.getId());
-        int i = 1;
+    public boolean saveRecordActions(RecordActionParam actionParam) {
+        log.info("saveRecordActions: {}", JSON.toJSONString(actionParam));
+        List<Action> recordActions = actionParam.getRecordActions();
+        int testCaseId = actionParam.getTestCaseId();
+        Integer maxStepSort = stepsService.findMaxStepSort(testCaseId);
+        int projectId = actionParam.getProjectId();
+        int i = maxStepSort == null ? 1 : maxStepSort + 1;
         List<Action> queue = new ArrayList<>();
         for (Action action : recordActions) {
-            if(action.getDetail().startsWith("up")){
-                i = handleStack(queue,i,projectId,testCases);
+            if (action.getDetail().startsWith("up")) {
+                i = handleStack(queue, i, projectId, testCaseId);
                 queue.clear();
-            }else{
+            } else {
                 queue.add(action);
             }
         }
         return false;
     }
 
-    private int handleStack(List<Action> queue,int index,int projectId,TestCases testCases){
-        if(queue.isEmpty()){
+    private int handleStack(List<Action> queue, int index, int projectId, int testCaseId) {
+        if (queue.isEmpty()) {
             log.error("queue is empty");
             throw new SonicException("queue is empty");
         }
-        Elements first = actionToElement(queue.get(0),projectId);
-        Elements last = actionToElement(queue.get(queue.size()-1),projectId);
-        if(first.equals(last)){
-            Steps steps = Steps.builder().caseId(testCases.getId()).sort(index).stepType("tap").platform(1).projectId(projectId).parentId(0).error(3).content("").text("").build();
+        Elements first = actionToElement(queue.get(0), projectId);
+        Elements last = actionToElement(queue.get(queue.size() - 1), projectId);
+        if (first.equals(last)) {
+            Steps steps = Steps.builder().caseId(testCaseId).sort(index).stepType("tap").platform(1).projectId(projectId).parentId(0).error(3).content("").text("").build();
             stepsService.save(steps);
             elementsService.save(first);
             stepsElementsMapper.insert(StepsElements.builder().stepsId(steps.getId()).elementsId(first.getId()).build());
-        }else{
-            Steps steps = Steps.builder().caseId(testCases.getId()).sort(index).stepType("swipe").platform(1).projectId(projectId).parentId(0).error(3).content("").text("").build();
+        } else {
+            Steps steps = Steps.builder().caseId(testCaseId).sort(index).stepType("swipe").platform(1).projectId(projectId).parentId(0).error(3).content("").text("").build();
             stepsService.save(steps);
             elementsService.save(first);
             elementsService.save(last);
@@ -351,7 +352,7 @@ public class TestCasesServiceImpl extends SonicServiceImpl<TestCasesMapper, Test
         return index;
     }
 
-    private Elements actionToElement(Action action,int projectId){
+    private Elements actionToElement(Action action, int projectId) {
         String v = action.getDetail().replace("down ", "").replace("move ", "").replace("\n", "").replace(" ", ",");
         return Elements.builder().eleName("坐标").eleType("point").eleValue(v).projectId(projectId).moduleId(0).build();
     }

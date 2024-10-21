@@ -7,6 +7,7 @@ import org.cloud.sonic.controller.models.base.CommentPage;
 import org.cloud.sonic.controller.models.domain.TestCases;
 import org.cloud.sonic.controller.models.dto.TestCasesDTO;
 import org.cloud.sonic.controller.models.params.Action;
+import org.cloud.sonic.controller.models.params.RecordActionParam;
 
 import java.util.List;
 
@@ -55,8 +56,8 @@ public interface TestCasesService extends IService<TestCases> {
 
     /**
      * 保存录制的坐标
-     * @param recordActions
+     * @param actionParam
      * @return
      */
-    boolean saveRecordActions(List<Action> recordActions);
+    boolean saveRecordActions(RecordActionParam actionParam);
 }
