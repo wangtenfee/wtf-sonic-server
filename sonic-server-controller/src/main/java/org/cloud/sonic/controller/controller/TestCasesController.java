@@ -37,6 +37,7 @@ import org.cloud.sonic.controller.models.dto.TestCasesDTO;
 import org.cloud.sonic.controller.models.http.UserInfo;
 import org.cloud.sonic.controller.models.params.Action;
 import org.cloud.sonic.controller.models.params.RecordActionParam;
+import org.cloud.sonic.controller.models.params.RecordEleParam;
 import org.cloud.sonic.controller.services.TestCasesService;
 import org.cloud.sonic.controller.services.TestSuitesService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -197,6 +198,14 @@ public class TestCasesController {
     public RespModel<String> saveRecordActions(@Validated @RequestBody RecordActionParam actionParam) {
         log.info("saveRecordActions: {}" , JSON.toJSONString(actionParam));
         testCasesService.saveRecordActions(actionParam);
+        return new RespModel<>(RespEnum.SAVE_OK);
+    }    @WebAspect
+
+    @Operation(summary = "存储录制的元素", description = "存储录制的坐标")
+    @PostMapping("/saveRecordElements")
+    public RespModel<String> saveRecordEle(@Validated @RequestBody RecordEleParam eleParam) {
+        log.info("saveRecordEle: {}" , JSON.toJSONString(eleParam));
+        testCasesService.saveRecordEle(eleParam);
         return new RespModel<>(RespEnum.SAVE_OK);
     }
 }

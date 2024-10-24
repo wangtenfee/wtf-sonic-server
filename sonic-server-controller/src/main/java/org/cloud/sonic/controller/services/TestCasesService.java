@@ -8,6 +8,7 @@ import org.cloud.sonic.controller.models.domain.TestCases;
 import org.cloud.sonic.controller.models.dto.TestCasesDTO;
 import org.cloud.sonic.controller.models.params.Action;
 import org.cloud.sonic.controller.models.params.RecordActionParam;
+import org.cloud.sonic.controller.models.params.RecordEleParam;
 
 import java.util.List;
 
@@ -60,4 +61,11 @@ public interface TestCasesService extends IService<TestCases> {
      * @return
      */
     boolean saveRecordActions(RecordActionParam actionParam);
+
+    /**
+     * 保存录制的元素
+     * @param eleParam
+     * @return
+     */
+    boolean saveRecordEle(RecordEleParam eleParam);
 }

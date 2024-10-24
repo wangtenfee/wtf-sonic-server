@@ -32,7 +32,9 @@ import org.cloud.sonic.controller.models.dto.PublicStepsAndStepsIdDTO;
 import org.cloud.sonic.controller.models.dto.StepsDTO;
 import org.cloud.sonic.controller.models.dto.TestCasesDTO;
 import org.cloud.sonic.controller.models.params.Action;
+import org.cloud.sonic.controller.models.params.ElementOnPage;
 import org.cloud.sonic.controller.models.params.RecordActionParam;
+import org.cloud.sonic.controller.models.params.RecordEleParam;
 import org.cloud.sonic.controller.services.*;
 import org.cloud.sonic.controller.services.impl.base.SonicServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -302,6 +304,45 @@ public class TestCasesServiceImpl extends SonicServiceImpl<TestCasesMapper, Test
     }
 
     /**
+     * 保存录制的元素
+     *
+     * @param eleParam
+     * @return
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean saveRecordEle(RecordEleParam eleParam) {
+        log.info("saveRecordEle: {}", JSON.toJSONString(eleParam));
+        List<ElementOnPage> elements = eleParam.getElements();
+        int testCaseId = eleParam.getTestCaseId();
+        Integer maxStepSort = stepsService.findMaxStepSort(testCaseId);
+        int projectId = eleParam.getProjectId();
+        int i = maxStepSort == null ? 1 : maxStepSort + 1;
+        for(ElementOnPage v: elements){
+            String name = org.cloud.sonic.controller.tools.StringUtils.getChinese(v.getElement());
+            if( name.equals("")){
+                if(v.getEleType().equals("id")){
+                    name = "resource_id";
+                }else if(v.getElement().startsWith("//android")){
+                    name = "xpath";
+                }else if(v.getElement().startsWith("/hierarchy")){
+                    name = "绝对路径";
+                }else{
+                    name = v.getEleType();
+                }
+            }
+
+            Elements ele = Elements.builder().eleName(name).eleType(v.getEleType()).eleValue(v.getElement()).projectId(projectId).moduleId(0).build();
+            elementsService.save(ele);
+            Steps steps = Steps.builder().caseId(testCaseId).sort(i).stepType("click").platform(1).projectId(projectId).parentId(0).error(3).content("").text("").build();
+            stepsService.save(steps);
+            stepsElementsMapper.insert(StepsElements.builder().stepsId(steps.getId()).elementsId(ele.getId()).build());
+        }
+
+        return true;
+    }
+
+    /**
      * 保存录制的坐标
      *
      * @param actionParam
@@ -325,7 +366,7 @@ public class TestCasesServiceImpl extends SonicServiceImpl<TestCasesMapper, Test
                 queue.add(action);
             }
         }
-        return false;
+        return true;
     }
 
     private int handleStack(List<Action> queue, int index, int projectId, int testCaseId) {
