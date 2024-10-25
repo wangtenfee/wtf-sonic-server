@@ -21,5 +21,6 @@ public class RecordActionParam {
     private List<Action> recordActions;
     private int testCaseId;
     private int projectId;
+    private int moduleId;
 
 }

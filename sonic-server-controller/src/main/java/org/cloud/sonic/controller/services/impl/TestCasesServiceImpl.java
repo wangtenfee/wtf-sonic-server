@@ -316,28 +316,30 @@ public class TestCasesServiceImpl extends SonicServiceImpl<TestCasesMapper, Test
         List<ElementOnPage> elements = eleParam.getElements();
         int testCaseId = eleParam.getTestCaseId();
         Integer maxStepSort = stepsService.findMaxStepSort(testCaseId);
+        int moduleId = eleParam.getModuleId();
+        Modules modules = modulesMapper.selectById(moduleId);
         int projectId = eleParam.getProjectId();
         int i = maxStepSort == null ? 1 : maxStepSort + 1;
-        for(ElementOnPage v: elements){
+        for (ElementOnPage v : elements) {
 
             List<Elements> eles = elementsService.findByTypeAndValue(v.getEleType(), v.getElement());
             Elements ele;
-            if(eles.size() > 0){
+            if (eles.size() > 0) {
                 ele = eles.get(0);
-            }else{
+            } else {
                 String name = org.cloud.sonic.controller.tools.StringUtils.getChinese(v.getElement());
-                if( name.equals("")){
-                    if(v.getEleType().equals("id")){
+                if (name.equals("")) {
+                    if (v.getEleType().equals("id")) {
                         name = v.getElement();
-                    }else if(v.getElement().startsWith("//android")){
+                    } else if (v.getElement().startsWith("//android")) {
                         name = v.getElement();
-                    }else if(v.getElement().startsWith("/hierarchy")){
+                    } else if (v.getElement().startsWith("/hierarchy")) {
                         name = "绝对路径";
-                    }else{
+                    } else {
                         name = v.getEleType();
                     }
                 }
-                ele = Elements.builder().eleName(name).eleType(v.getEleType()).eleValue(v.getElement()).projectId(projectId).moduleId(0).build();
+                ele = Elements.builder().eleName(modules.getName() + "_" + name).eleType(v.getEleType()).eleValue(v.getElement()).projectId(projectId).moduleId(moduleId).build();
                 elementsService.save(ele);
             }
             Steps steps = Steps.builder().caseId(testCaseId).sort(i).stepType("click").platform(1).projectId(projectId).parentId(0).error(3).content("").text("").build();
@@ -366,7 +368,7 @@ public class TestCasesServiceImpl extends SonicServiceImpl<TestCasesMapper, Test
         List<Action> queue = new ArrayList<>();
         for (Action action : recordActions) {
             if (action.getDetail().startsWith("up")) {
-                i = handleStack(queue, i, projectId, testCaseId);
+                i = handleStack(queue, i, projectId, testCaseId, actionParam.getModuleId());
                 queue.clear();
             } else {
                 queue.add(action);
@@ -375,13 +377,13 @@ public class TestCasesServiceImpl extends SonicServiceImpl<TestCasesMapper, Test
         return true;
     }
 
-    private int handleStack(List<Action> queue, int index, int projectId, int testCaseId) {
+    private int handleStack(List<Action> queue, int index, int projectId, int testCaseId, int moduleId) {
         if (queue.isEmpty()) {
             log.error("queue is empty");
             throw new SonicException("queue is empty");
         }
-        Elements first = actionToElement(queue.get(0), projectId);
-        Elements last = actionToElement(queue.get(queue.size() - 1), projectId);
+        Elements first = actionToElement(queue.get(0), projectId, moduleId);
+        Elements last = actionToElement(queue.get(queue.size() - 1), projectId, moduleId);
         if (first.equals(last)) {
             Steps steps = Steps.builder().caseId(testCaseId).sort(index).stepType("tap").platform(1).projectId(projectId).parentId(0).error(3).content("").text("").build();
             stepsService.save(steps);
@@ -399,9 +401,10 @@ public class TestCasesServiceImpl extends SonicServiceImpl<TestCasesMapper, Test
         return index;
     }
 
-    private Elements actionToElement(Action action, int projectId) {
+    private Elements actionToElement(Action action, int projectId, int moduleId) {
+        Modules modules = modulesMapper.selectById(moduleId);
         String v = action.getDetail().replace("down ", "").replace("move ", "").replace("\n", "").replace(" ", ",");
-        return Elements.builder().eleName("坐标").eleType("point").eleValue(v).projectId(projectId).moduleId(0).build();
+        return Elements.builder().eleName(modules.getName() + "_" + "坐标").eleType("point").eleValue(v).projectId(projectId).moduleId(moduleId).build();
     }
 }
 
