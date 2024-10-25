@@ -20,6 +20,20 @@ public interface ElementsService extends IService<Elements> {
 
     Elements findById(int id);
 
+    /**
+     * 根据 type value 查找元素
+     * @param type
+     * @param value
+     * @return
+     */
+    List<Elements> findByTypeAndValue(String type, String value);
+
+    /**
+     *
+     * 根据 工程id 删除元素
+     * @param projectId
+     * @return
+     */
     boolean deleteByProjectId(int projectId);
 
 

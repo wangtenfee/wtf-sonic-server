@@ -43,7 +43,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -129,6 +131,21 @@ public class ElementsServiceImpl extends SonicServiceImpl<ElementsMapper, Elemen
     @Override
     public Elements findById(int id) {
         return baseMapper.selectById(id);
+    }
+
+    /**
+     * 根据 type value 查找元素
+     *
+     * @param type
+     * @param value
+     * @return
+     */
+    @Override
+    public List<Elements> findByTypeAndValue(String type, String value) {
+        Map<String,Object> map = new HashMap<>();
+        map.put("ele_type", type);
+        map.put("ele_value", value);
+        return elementsMapper.selectByMap(map);
     }
 
     @Override

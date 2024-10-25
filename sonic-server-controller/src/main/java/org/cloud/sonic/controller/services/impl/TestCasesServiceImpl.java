@@ -319,21 +319,27 @@ public class TestCasesServiceImpl extends SonicServiceImpl<TestCasesMapper, Test
         int projectId = eleParam.getProjectId();
         int i = maxStepSort == null ? 1 : maxStepSort + 1;
         for(ElementOnPage v: elements){
-            String name = org.cloud.sonic.controller.tools.StringUtils.getChinese(v.getElement());
-            if( name.equals("")){
-                if(v.getEleType().equals("id")){
-                    name = "resource_id";
-                }else if(v.getElement().startsWith("//android")){
-                    name = "xpath";
-                }else if(v.getElement().startsWith("/hierarchy")){
-                    name = "绝对路径";
-                }else{
-                    name = v.getEleType();
-                }
-            }
 
-            Elements ele = Elements.builder().eleName(name).eleType(v.getEleType()).eleValue(v.getElement()).projectId(projectId).moduleId(0).build();
-            elementsService.save(ele);
+            List<Elements> eles = elementsService.findByTypeAndValue(v.getEleType(), v.getElement());
+            Elements ele;
+            if(eles.size() > 0){
+                ele = eles.get(0);
+            }else{
+                String name = org.cloud.sonic.controller.tools.StringUtils.getChinese(v.getElement());
+                if( name.equals("")){
+                    if(v.getEleType().equals("id")){
+                        name = v.getElement();
+                    }else if(v.getElement().startsWith("//android")){
+                        name = v.getElement();
+                    }else if(v.getElement().startsWith("/hierarchy")){
+                        name = "绝对路径";
+                    }else{
+                        name = v.getEleType();
+                    }
+                }
+                ele = Elements.builder().eleName(name).eleType(v.getEleType()).eleValue(v.getElement()).projectId(projectId).moduleId(0).build();
+                elementsService.save(ele);
+            }
             Steps steps = Steps.builder().caseId(testCaseId).sort(i).stepType("click").platform(1).projectId(projectId).parentId(0).error(3).content("").text("").build();
             stepsService.save(steps);
             stepsElementsMapper.insert(StepsElements.builder().stepsId(steps.getId()).elementsId(ele.getId()).build());
