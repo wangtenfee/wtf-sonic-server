@@ -21,6 +21,6 @@ public class RecordEleParam {
     private List<ElementOnPage> elements;
     private int testCaseId;
     private int projectId;
-    private int moduleId;
+//    private int moduleId;
 
 }

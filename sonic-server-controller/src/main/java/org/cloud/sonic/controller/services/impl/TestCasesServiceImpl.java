@@ -315,8 +315,9 @@ public class TestCasesServiceImpl extends SonicServiceImpl<TestCasesMapper, Test
         log.info("saveRecordEle: {}", JSON.toJSONString(eleParam));
         List<ElementOnPage> elements = eleParam.getElements();
         int testCaseId = eleParam.getTestCaseId();
+        TestCases testCase = testCasesMapper.selectById(testCaseId);
         Integer maxStepSort = stepsService.findMaxStepSort(testCaseId);
-        int moduleId = eleParam.getModuleId();
+        Integer moduleId = testCase.getModuleId();
         Modules modules = modulesMapper.selectById(moduleId);
         int projectId = eleParam.getProjectId();
         int i = maxStepSort == null ? 1 : maxStepSort + 1;
@@ -362,13 +363,14 @@ public class TestCasesServiceImpl extends SonicServiceImpl<TestCasesMapper, Test
         log.info("saveRecordActions: {}", JSON.toJSONString(actionParam));
         List<Action> recordActions = actionParam.getRecordActions();
         int testCaseId = actionParam.getTestCaseId();
+        TestCases testCase = testCasesMapper.selectById(testCaseId);
         Integer maxStepSort = stepsService.findMaxStepSort(testCaseId);
         int projectId = actionParam.getProjectId();
         int i = maxStepSort == null ? 1 : maxStepSort + 1;
         List<Action> queue = new ArrayList<>();
         for (Action action : recordActions) {
             if (action.getDetail().startsWith("up")) {
-                i = handleStack(queue, i, projectId, testCaseId, actionParam.getModuleId());
+                i = handleStack(queue, i, projectId, testCaseId, testCase.getModuleId());
                 queue.clear();
             } else {
                 queue.add(action);
