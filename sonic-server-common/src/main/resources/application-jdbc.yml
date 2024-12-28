@@ -2,11 +2,11 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     #  jdbc:mysql://{mysql host}:{mysql port}/{database}
-    url: jdbc:mysql://${MYSQL_HOST:oem-stg-mysql.kyslb.com}:${MYSQL_PORT:13300}/${MYSQL_DATABASE:sonic}?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC&autoReconnect=true&serverTimezone=GMT%2b8
+    url: jdbc:mysql://192.168.3.20:3306/${MYSQL_DATABASE:sonic}?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC&autoReconnect=true&serverTimezone=GMT%2b8
     # mysql username
-    username: ${MYSQL_USERNAME:pda-test}
+    username: ${MYSQL_USERNAME:root}
     # mysql password
-    password: ${MYSQL_PASSWORD:WSnSD9mMf0GODa6h}
+    password: 123456
     schema:
       - classpath:data.sql
   sql:
